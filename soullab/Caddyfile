@@ -1,3 +1,1 @@
-{$DOMAIN_SCHEME}://{$DOMAIN_NAME} {
-    reverse_proxy soullab_backend:3000
-}
+import ./soullab-backend/Caddyfile

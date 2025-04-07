@@ -1,10 +1,2 @@
-services:
-  soullab_backend:
-    image: ghcr.io/${org}/soullab-backend-2.0:${SOULLAB_BACKEND_IMAGE_TAG:-${DEFAULT_IMAGE_TAG:?DEFAULT_IMAGE_TAG is not set}}
-    restart: always
-    environment:
-      DATABASE_URL=${SOULLAB_BACKEND_DATABASE_URL:?SOULLAB_BACKEND_DATABASE_URL is not set}
-      SWAGGER_USERNAME=${SWAGGER_USERNAME:?SWAGGER_USERNAME is not set}
-      SWAGGER_PASSWORD=${SWAGGER_PASSWORD:?SWAGGER_PASSWORD is not set}
-      JWT_SECRET=${JWT_SECRET:?JWT_SECRET is not set}
-      NODE_ENV=${NODE_ENV:?NODE_ENV is not set}
+include:
+  - ./soullab-backend/docker-compose.yaml
