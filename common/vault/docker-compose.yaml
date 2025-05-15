@@ -1,17 +1,17 @@
 volumes:
-  environment:
+  vault:
 
 services:
-  environment:
+  vault:
     build:
       context: .
       dockerfile: Dockerfile
     restart: always
     environment:
-      VAULT_USERNAME: ${ENVIRONMENT_USERNAME:?ENVIRONMENT_USERNAME is not set}
-      VAULT_PASSWORD: ${ENVIRONMENT_PASSWORD:?ENVIRONMENT_PASSWORD is not set}
+      VAULT_USERNAME: ${VAULT_USERNAME:?VAULT_USERNAME is not set}
+      VAULT_PASSWORD: ${VAULT_PASSWORD:?VAULT_PASSWORD is not set}
     volumes:
-      - environment:/vault/file
+      - vault:/vault/file
       - ./vault.json:/vault/config/vault.json
       - ./admin-policy.hcl:/vault/policies/admin-policy.hcl
       - ./vault-init.sh:/vault-init.sh
