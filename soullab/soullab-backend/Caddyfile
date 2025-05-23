@@ -1,7 +1,4 @@
-{$DOMAIN_SCHEME}://api.v2.{$DOMAIN_NAME} {
+{$DOMAIN_SCHEME}://api.{$DOMAIN_NAME} {
     reverse_proxy soullab_backend:3000
 }
 
-{$DOMAIN_SCHEME}://api.v1.{$DOMAIN_NAME} {
-    reverse_proxy host.docker.internal:3001
-}
