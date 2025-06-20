@@ -24,8 +24,9 @@ services:
     image: grafana/promtail:2.9.5 
     restart: always
     volumes:
-      - '/var/lib/docker/containers:/var/lib/docker/containers:ro'
+      - '/mnt/data/docker/containers:/var/lib/docker/containers:ro'
       - './loki/promtail-config.yaml:/etc/promtail/promtail-config.yaml'
+      - '/var/run/docker.sock:/var/run/docker.sock:ro'   
     command: -config.file=/etc/promtail/promtail-config.yaml
 
   grafana:
