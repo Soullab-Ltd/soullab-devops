@@ -1,0 +1,3 @@
+{$DOMAIN_SCHEME}://gratify.{$DOMAIN_NAME} {
+    reverse_proxy soullab-gratify:2000
+}
