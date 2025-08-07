@@ -1,3 +1,2 @@
 include:
   - ./soullab-backend/docker-compose.yaml
-  - ./soullab-gratify/docker-compose.yaml

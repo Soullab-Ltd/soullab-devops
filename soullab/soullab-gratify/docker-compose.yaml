@@ -1,7 +1,0 @@
-services:
-  soullab-gratify:
-    image: ghcr.io/es-magico-tech-studio/rewards:${REWARDS_IMAGE_TAG:-${DEFAULT_IMAGE_TAG:?DEFAULT_IMAGE_TAG is not set}}
-    restart: always
-    env_file:
-      - ./env
-

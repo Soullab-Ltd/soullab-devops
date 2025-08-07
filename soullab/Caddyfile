@@ -1,2 +1,1 @@
 import ./soullab-backend/Caddyfile
-import ./soullab-gratify/Caddyfile
