@@ -1,1 +1,2 @@
 import ./soullab-backend/Caddyfile
+import ./soullab-chat-bot/Caddyfile

@@ -1,12 +1,12 @@
 volumes:
-  minio:
+  minio-loki:
 
 services:
-  minio:
+  minio-loki:
     image: minio/minio
     restart: always
     volumes:
-      - minio:/data
+      - minio-loki:/data
     environment:
       MINIO_ROOT_USER: ${MINIO_ROOT_USER:?MINIO_ROOT_USER is not set}
       MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:?MINIO_ROOT_PASSWORD is not set}
@@ -18,7 +18,7 @@ services:
       - './kickstart.sh:/etc/minio/kickstart.sh'
     entrypoint: /etc/minio/kickstart.sh
     depends_on:
-      - minio
+      - minio-loki
     environment:
       MINIO_HOST: http://minio:9000
       MINIO_ROOT_USER: ${MINIO_ROOT_USER}
