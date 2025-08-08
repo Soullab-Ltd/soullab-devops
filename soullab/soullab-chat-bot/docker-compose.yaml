@@ -1,0 +1,126 @@
+volumes:
+  postgres_data:
+  milvus_data:
+  etcd_data:
+  minio_data:
+
+# networks:
+#   soul_lab_ai_bot:
+#     name: ${NETWORK_NAME}
+#     external: true
+
+
+services:
+  postgres:
+    image: postgres:13
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB_CHATBOT}
+      POSTGRES_USER: ${POSTGRES_USER_CHATBOT}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD_CHATBOT}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    # networks:
+    #   - soul_lab_ai_bot
+    ports:
+      - ${POSTGRES_PORT}:${POSTGRES_INTERNAL_PORT_CHATBOT}
+
+  etcd:
+    container_name: milvus-etcd
+    image: quay.io/coreos/etcd:v3.5.18
+    environment:
+      - ETCD_AUTO_COMPACTION_MODE=revision
+      - ETCD_AUTO_COMPACTION_RETENTION=1000
+      - ETCD_QUOTA_BACKEND_BYTES=4294967296
+      - ETCD_SNAPSHOT_COUNT=50000
+    volumes:
+      - ${DOCKER_VOLUME_DIRECTORY:-.}/volumes/etcd:/etcd
+    command: etcd -advertise-client-urls=http://etcd:2379 -listen-client-urls http://0.0.0.0:2379 --data-dir /etcd
+    healthcheck:
+      test: ["CMD", "etcdctl", "endpoint", "health"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+    # networks:
+    #   - soul_lab_ai_bot
+
+  minio:
+    container_name: milvus-minio
+    image: minio/minio:RELEASE.2024-05-28T17-19-04Z
+    environment:
+      MINIO_ACCESS_KEY: ${MINIO_ROOT_USER_CHATBOT}
+      MINIO_SECRET_KEY: ${MINIO_ROOT_PASSWORD_CHATBOT}
+#    ports:
+#      - "9001:9001"
+#      - "9000:9000"
+    volumes:
+      - ${DOCKER_VOLUME_DIRECTORY:-.}/volumes/minio:/minio_data
+    command: minio server /minio_data --console-address ":9001"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+    # networks:
+    #   - soul_lab_ai_bot
+
+  standalone:
+    container_name: milvus-standalone
+    image: milvusdb/milvus:v2.5.14
+    command: [ "milvus", "run", "standalone" ]
+    security_opt:
+      - seccomp:unconfined
+    environment:
+      MINIO_REGION: us-east-1
+      ETCD_ENDPOINTS: etcd:2379
+      MINIO_ADDRESS: minio:9000
+    volumes:
+      - ${DOCKER_VOLUME_DIRECTORY:-.}/volumes/milvus:/var/lib/milvus
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:9091/healthz" ]
+      interval: 30s
+      start_period: 90s
+      timeout: 20s
+      retries: 3
+    depends_on:
+      - "etcd"
+      - "minio"
+    ports:
+      - "127.0.0.1:19530:19530"
+      - "9091:9091"
+    # networks:
+    #   - soul_lab_ai_bot
+
+  hasura-soullab-chat-bot:
+    image: hasura/graphql-engine:v2.15.2
+    restart: unless-stopped
+    depends_on: [ postgres ]
+    environment:
+      HASURA_GRAPHQL_DATABASE_URL: ${DATABASE_URL_CHATBOT}
+      HASURA_GRAPHQL_ADMIN_SECRET: ${HASURA_GRAPHQL_ADMIN_SECRET_CHATBOT}
+      HASURA_GRAPHQL_ENABLE_CONSOLE: "true"
+      HASURA_GRAPHQL_DEV_MODE: "true"
+    # networks:
+    #   - soul_lab_ai_bot
+
+  fastapi-app:
+    image: ghcr.io/esmagico/soul_lab_chatbot:fix-cleanup
+    container_name: soul-lab-fastapi
+    network_mode: host
+    environment:
+      GOOGLE_API_KEY: ${GOOGLE_API_KEY}
+      MILVUS_HOST: ${MILVUS_HOST}
+      POSTGRES_DB: ${POSTGRES_DB_CHATBOT}
+      POSTGRES_USER: ${POSTGRES_USER_CHATBOT}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD_CHATBOT}
+      POSTGRES_PORT: ${POSTGRES_PORT_CHATBOT}  
+    restart: unless-stopped
+    depends_on:
+      - postgres
+      - standalone
+#    healthcheck:
+#      test: ["CMD", "curl", "-f", "http://localhost:80/health"]
+#      interval: 30s
+#      timeout: 10s
+#      retries: 3
+#      start_period: 40s

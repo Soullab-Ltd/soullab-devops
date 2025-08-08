@@ -1,0 +1,6 @@
+https://api.dev.chat.soullab.esmagico.com {
+    reverse_proxy host.docker.internal:8006
+}
+https://data.dev.chat.soullab.esmagico.com/ {
+    reverse_proxy hasura-soullab-chat-bot:8080
+}
